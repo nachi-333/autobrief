@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react';
+import { useEffect } from 'react';
 
 const LandingPage = () => {
   const handleSummariseMeeting = () => {
@@ -32,9 +33,42 @@ const LandingPage = () => {
       window.location.href = "/api/connectors/jira/oauth/start";
     }
   };
-  const handleCalendar = () => {
-    console.log('Calendar clicked');
-    // Add your navigation or functionality here
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+      localStorage.setItem('google_access_token', token);
+      // Remove token from URL (clean up)
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  const handleCalendar = async () => {
+
+    const token = localStorage.getItem('google_access_token');
+
+    if (!token) {
+      // Redirect user to start Google OAuth flow
+      window.location.href = '/api/google/init';
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/google/events?access_token=${token}`);
+      const data = await response.json();
+
+      if (data.success) {
+        console.log('Fetched events:', data.events);
+        alert(`Fetched ${data.events.length} upcoming events`);
+        // You can later show this in a modal or page
+      } else {
+        alert('Failed to fetch events. Try reauthenticating.');
+        localStorage.removeItem('google_access_token');
+      }
+    } catch (error) {
+      console.error('Calendar fetch error:', error);
+      alert('Calendar fetch error. See console.');
+    }
   };
 
   return (
