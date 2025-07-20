@@ -1,4 +1,4 @@
-import { getOAuthClient, SCOPES } from '../../../lib/google';
+import { getOAuthClient, SCOPES } from '../../../../../lib/google';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
@@ -11,6 +11,6 @@ export async function GET(req: NextRequest) {
   const redirectUrl = new URL('http://localhost:3000/connectors');
   redirectUrl.searchParams.set('token', tokens.access_token || '');
 
-return NextResponse.redirect(redirectUrl);
+  return NextResponse.redirect(redirectUrl);
 
 }

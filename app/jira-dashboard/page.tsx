@@ -26,12 +26,12 @@ interface StatusResponse {
 
 const STATE_ORDER = ["OPEN", "IN_PROGRESS", "DONE", "OTHER"];
 
-// Map internal state → Jira-ish column label & color
+// Updated column colors to match amber-rose theme
 const COLUMN_META: Record<string, { label: string; color: string; bg: string }> = {
-  OPEN: { label: "TO DO", color: "text-sky-600", bg: "bg-sky-50 dark:bg-sky-900/20" },
-  IN_PROGRESS: { label: "IN PROGRESS", color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-900/20" },
-  DONE: { label: "DONE", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
-  OTHER: { label: "OTHER", color: "text-stone-600", bg: "bg-stone-50 dark:bg-stone-800/40" },
+  OPEN: { label: "TO DO", color: "text-amber-700", bg: "bg-gradient-to-r from-amber-50/80 to-rose-50/60" },
+  IN_PROGRESS: { label: "IN PROGRESS", color: "text-rose-700", bg: "bg-gradient-to-r from-rose-50/80 to-amber-50/60" },
+  DONE: { label: "DONE", color: "text-emerald-700", bg: "bg-gradient-to-r from-emerald-50/80 to-amber-50/60" },
+  OTHER: { label: "OTHER", color: "text-stone-700", bg: "bg-gradient-to-r from-stone-50/80 to-amber-50/60" },
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -52,7 +52,7 @@ export default function JiraDashboard() {
   const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("ALL");
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
-  const [relativeClock, setRelativeClock] = useState<number>(0); // tick to recompute relative times
+  const [relativeClock, setRelativeClock] = useState<number>(0);
 
   // ---- Fetchers ----
   async function fetchStatus() {
@@ -166,15 +166,15 @@ export default function JiraDashboard() {
   const StatusPill = ({ connected }: { connected: boolean }) => (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium",
+        "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold font-inter backdrop-blur-sm shadow-sm",
         connected
-          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-800/40 dark:text-emerald-300"
-          : "bg-red-100 text-red-700 dark:bg-red-800/40 dark:text-red-300"
+          ? "bg-emerald-50/80 text-emerald-800 border border-emerald-200/60"
+          : "bg-red-50/80 text-red-800 border border-red-200/60"
       )}
     >
       <span
         className={cn(
-          "h-2 w-2 rounded-full",
+          "h-2 w-2 rounded-full shadow-sm",
           connected ? "bg-emerald-500 animate-pulse" : "bg-red-500"
         )}
       />
@@ -187,41 +187,41 @@ export default function JiraDashboard() {
     return (
       <button
         onClick={() => setSelectedIssue(issue)}
-        className="w-full text-left group rounded-md border border-transparent bg-white dark:bg-neutral-900/70 hover:border-indigo-400/60 hover:shadow transition p-3"
+        className="w-full text-left group rounded-xl border border-amber-200/40 bg-gradient-to-br from-white/90 to-amber-50/60 hover:border-rose-300/60 hover:shadow-lg hover:shadow-amber-200/25 transition-all duration-200 p-4 backdrop-blur-sm hover:scale-[1.02] font-inter"
       >
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-300">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <span className="text-xs font-bold text-rose-600 bg-rose-50/80 px-2 py-1 rounded-md">
             {issue.issueKey}
           </span>
           {issue.priority && (
             <span
               className={cn(
-                "inline-block h-2 w-2 rounded-full",
+                "inline-block h-3 w-3 rounded-full shadow-sm",
                 priorityColor
               )}
               title={issue.priority}
             />
           )}
         </div>
-        <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-snug line-clamp-3">
+        <p className="text-sm font-semibold text-amber-900 leading-snug line-clamp-3 mb-3">
           {issue.title}
         </p>
         <div className="mt-2 flex flex-wrap gap-1">
           {issue.labels?.slice(0, 3).map(l => (
             <span
               key={l}
-              className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded px-1.5 py-0.5 text-[10px] font-medium"
+              className="bg-gradient-to-r from-amber-100/80 to-rose-100/80 text-amber-800 rounded-full px-2 py-1 text-[10px] font-semibold border border-amber-200/50"
             >
               {l}
             </span>
           ))}
           {issue.labels && issue.labels.length > 3 && (
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[10px] text-amber-600 font-semibold">
               +{issue.labels.length - 3}
             </span>
           )}
         </div>
-        <div className="mt-2 text-[10px] text-gray-500 dark:text-gray-400 flex justify-between">
+        <div className="mt-3 text-[11px] text-rose-700 font-medium flex justify-between">
           <span>{issue.assignee || "Unassigned"}</span>
           <span>{relTime(issue.updatedAtISO)}</span>
         </div>
@@ -230,37 +230,54 @@ export default function JiraDashboard() {
   };
 
   const SkeletonCard = () => (
-    <div className="animate-pulse rounded-md bg-white/60 dark:bg-neutral-800 h-28 border border-gray-200 dark:border-neutral-700" />
+    <div className="animate-pulse rounded-xl bg-gradient-to-br from-white/60 to-amber-50/40 h-32 border border-amber-200/40" />
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950 transition-colors">
-      {/* Top Bar */}
-      <header className="border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/60 backdrop-blur">
-        <div className="px-4 py-3 flex items-center gap-4">
-          {/* Back */}
-          <button
-            onClick={() => (window.location.href = "/connectors")}
-            className="flex items-center gap-1 text-sm font-medium text-indigo-600 dark:text-indigo-300 hover:underline"
-          >
-            ← Back
-          </button>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-amber-50 via-rose-50 to-pink-50/40 relative overflow-hidden font-inter">
+      {/* Background Pattern with Amber/Rose Fade */}
+      <div className="absolute inset-0 opacity-8 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-200/20 via-transparent to-rose-200/25"></div>
+        <div className="absolute top-[-10%] left-[-15%] w-1/2 h-[380px] bg-gradient-to-br from-amber-300/30 to-rose-200/0 blur-3xl rounded-full opacity-45" />
+        <div className="absolute bottom-[-16%] right-[-10%] w-1/3 h-[370px] bg-gradient-to-tl from-rose-300/25 to-amber-100/0 blur-2xl rounded-full opacity-40" />
+      </div>
 
-          <h1 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">
-            Jira Connector Dashboard
+      {/* Top Bar */}
+      <header className="relative border-b border-amber-200/40 bg-white/85 backdrop-blur-lg shadow-sm z-10">
+        <div className="px-8 py-6 flex items-center gap-6">
+          {/* Back Button & Logo */}
+          <div className="flex items-center space-x-6">
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="flex items-center gap-2 text-sm font-semibold text-rose-700 hover:text-rose-800 transition-colors bg-gradient-to-r from-amber-50/80 to-rose-50/60 px-4 py-2 rounded-xl border border-rose-200/50 hover:border-rose-300/60"
+            >
+              ← Back to AutoBrief
+            </button>
+            <div className="relative w-10 h-10 bg-gradient-to-br from-amber-500 via-rose-500 to-pink-600 rounded-lg flex items-center justify-center shadow-lg">
+              <div className="relative">
+                <div className="absolute inset-0 bg-white/20 rounded-sm transform rotate-3"></div>
+                <div className="relative bg-white/90 rounded-sm px-1.5 py-0.5 shadow-inner">
+                  <span className="text-amber-800 text-xs font-black tracking-tight font-mono">AB</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h1 className="text-2xl font-bold text-amber-900 tracking-tight">
+            Jira Dashboard
           </h1>
 
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex items-center gap-4">
             <StatusPill connected={!!status?.connected} />
             {status?.connected && (
-              <div className="text-xs text-neutral-500 dark:text-neutral-400 hidden sm:block">
+              <div className="text-sm text-amber-700 font-medium hidden sm:block bg-gradient-to-r from-amber-50/80 to-rose-50/60 px-3 py-2 rounded-lg border border-amber-200/50">
                 Last Sync: {lastSync}
               </div>
             )}
             {!status?.connected && (
               <button
                 onClick={connect}
-                className="rounded-md bg-indigo-600 text-white text-sm px-3 py-1.5 font-medium hover:bg-indigo-500"
+                className="rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white text-sm px-6 py-3 font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105"
               >
                 Connect Jira
               </button>
@@ -270,13 +287,13 @@ export default function JiraDashboard() {
                 onClick={syncNow}
                 disabled={syncing}
                 className={cn(
-                  "rounded-md bg-emerald-600 text-white text-sm px-3 py-1.5 font-medium hover:bg-emerald-500 disabled:opacity-60 flex items-center gap-2"
+                  "rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm px-6 py-3 font-semibold transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-60 flex items-center gap-2"
                 )}
               >
                 {syncing && (
                   <span className="h-3 w-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 )}
-                {syncing ? "Syncing..." : "Sync"}
+                {syncing ? "Syncing..." : "Sync Now"}
               </button>
             )}
             <button
@@ -284,7 +301,7 @@ export default function JiraDashboard() {
                 fetchStatus();
                 fetchIssues();
               }}
-              className="rounded-md border border-neutral-300 dark:border-neutral-600 text-sm px-3 py-1.5 font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              className="rounded-xl bg-white/90 border-2 border-amber-300/70 hover:bg-amber-50/80 hover:border-amber-400 text-amber-800 text-sm px-6 py-3 font-semibold transition-all duration-200 shadow-sm hover:shadow-md backdrop-blur-sm"
             >
               Refresh
             </button>
@@ -293,18 +310,18 @@ export default function JiraDashboard() {
       </header>
 
       {/* Filter Bar */}
-      <div className="border-b border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur">
-        <div className="px-4 py-2 flex flex-wrap gap-4 items-center">
+      <div className="relative border-b border-amber-200/40 bg-white/75 backdrop-blur-lg z-10">
+        <div className="px-8 py-4 flex flex-wrap gap-4 items-center">
           <input
             placeholder="Search issues (key, title, label)…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full sm:w-64 rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full sm:w-80 rounded-xl border border-amber-300/50 bg-white/90 backdrop-blur-sm px-4 py-3 text-sm font-medium text-amber-900 placeholder-amber-600/70 outline-none focus:ring-2 focus:ring-rose-400/50 focus:border-rose-400 transition-all duration-200"
           />
           <select
             value={priorityFilter}
             onChange={e => setPriorityFilter(e.target.value)}
-            className="rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-2 py-2 text-sm"
+            className="rounded-xl border border-amber-300/50 bg-white/90 backdrop-blur-sm px-4 py-3 text-sm font-semibold text-amber-900 outline-none focus:ring-2 focus:ring-rose-400/50"
           >
             <option value="ALL">All Priorities</option>
             {priorities.map(p => (
@@ -316,7 +333,7 @@ export default function JiraDashboard() {
           <select
             value={assigneeFilter}
             onChange={e => setAssigneeFilter(e.target.value)}
-            className="rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-2 py-2 text-sm"
+            className="rounded-xl border border-amber-300/50 bg-white/90 backdrop-blur-sm px-4 py-3 text-sm font-semibold text-amber-900 outline-none focus:ring-2 focus:ring-rose-400/50"
           >
             <option value="ALL">All Assignees</option>
             {assignees.map(a => (
@@ -332,7 +349,7 @@ export default function JiraDashboard() {
                 setPriorityFilter("ALL");
                 setAssigneeFilter("ALL");
               }}
-              className="text-xs text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+              className="text-sm text-rose-600 hover:text-rose-800 font-semibold bg-rose-50/80 hover:bg-rose-100/80 px-4 py-2 rounded-lg border border-rose-200/50 transition-colors"
             >
               Reset Filters
             </button>
@@ -341,42 +358,46 @@ export default function JiraDashboard() {
       </div>
 
       {/* Board */}
-      <main className="flex-1 overflow-auto px-4 py-6">
+      <main className="relative flex-1 overflow-auto px-8 py-8 z-10">
         {!status?.connected && (
-          <div className="mt-10 text-center text-neutral-500 dark:text-neutral-400">
-            Connect Jira to load issues.
+          <div className="mt-16 text-center">
+            <div className="bg-gradient-to-r from-white/90 to-amber-50/80 backdrop-blur-sm border border-amber-200/60 rounded-2xl p-12 shadow-lg inline-block">
+              <p className="text-amber-800 text-xl font-semibold">
+                Connect Jira to load issues and start managing your project workflow.
+              </p>
+            </div>
           </div>
         )}
         {status?.connected && (
-          <div className="grid gap-5 md:grid-cols-4">
+          <div className="grid gap-8 md:grid-cols-4">
             {STATE_ORDER.map(stateKey => {
               const meta = COLUMN_META[stateKey] || COLUMN_META.OTHER;
               const columnIssues = grouped[stateKey] || [];
               return (
                 <div
                   key={stateKey}
-                  className="flex flex-col rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-100/60 dark:bg-neutral-900/40 backdrop-blur"
+                  className="flex flex-col rounded-2xl border border-amber-200/60 bg-gradient-to-br from-white/90 to-amber-50/60 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <div
                     className={cn(
-                      "px-3 py-2 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between",
+                      "px-6 py-4 border-b border-rose-200/50 flex items-center justify-between rounded-t-2xl",
                       meta.bg
                     )}
                   >
-                    <span className={cn("text-xs font-semibold tracking-wide", meta.color)}>
+                    <span className={cn("text-sm font-bold tracking-wide", meta.color)}>
                       {meta.label}
                     </span>
-                    <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400">
+                    <span className="text-xs font-bold px-3 py-1 bg-white/80 text-amber-800 rounded-full border border-amber-200/50 shadow-sm">
                       {columnIssues.length}
                     </span>
                   </div>
 
-                  <div className="p-2 space-y-2 overflow-y-auto min-h-[200px] max-h-[70vh]">
+                  <div className="p-4 space-y-3 overflow-y-auto min-h-[300px] max-h-[70vh]">
                     {loadingIssues &&
                       Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
                     {!loadingIssues && columnIssues.length === 0 && (
-                      <div className="text-xs text-neutral-400 text-center py-4">
-                        Empty
+                      <div className="text-sm text-amber-600 text-center py-8 font-medium">
+                        No issues in this column
                       </div>
                     )}
                     {!loadingIssues &&
@@ -393,73 +414,73 @@ export default function JiraDashboard() {
 
       {/* Side Drawer for Selected Issue */}
       {selectedIssue && (
-        <div className="fixed inset-0 z-40 flex">
+        <div className="fixed inset-0 z-50 flex">
           <div
             className="flex-1 bg-black/30 backdrop-blur-sm"
             onClick={() => setSelectedIssue(null)}
           />
-          <div className="w-full sm:w-[480px] max-w-full h-full bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 shadow-xl p-6 overflow-y-auto">
-            <div className="flex items-start justify-between mb-4">
+          <div className="w-full sm:w-[540px] max-w-full h-full bg-gradient-to-br from-white/95 to-amber-50/80 border-l border-amber-200/60 shadow-2xl p-8 overflow-y-auto backdrop-blur-lg">
+            <div className="flex items-start justify-between mb-6">
               <div>
-                <h2 className="text-sm font-semibold text-indigo-600 dark:text-indigo-300">
+                <h2 className="text-sm font-bold text-rose-600 bg-rose-50/80 px-3 py-1 rounded-lg mb-2">
                   {selectedIssue.issueKey}
                 </h2>
-                <p className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">
+                <p className="text-xl font-bold text-amber-900 leading-tight">
                   {selectedIssue.title}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedIssue(null)}
-                className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                className="text-amber-600 hover:text-amber-800 bg-amber-50/80 hover:bg-amber-100/80 p-2 rounded-lg transition-colors"
               >
                 ✕
               </button>
             </div>
 
-            <div className="space-y-4 text-sm">
-              <div className="flex flex-wrap gap-2">
+            <div className="space-y-6 text-sm">
+              <div className="flex flex-wrap gap-3">
                 {selectedIssue.priority && (
                   <span
                     className={cn(
-                      "px-2 py-1 rounded-full text-xs font-medium text-white",
+                      "px-3 py-2 rounded-lg text-xs font-bold text-white shadow-sm",
                       PRIORITY_COLORS[selectedIssue.priority] || "bg-gray-500"
                     )}
                   >
-                    {selectedIssue.priority}
+                    {selectedIssue.priority} Priority
                   </span>
                 )}
-                <span className="px-2 py-1 rounded-full text-xs font-medium bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200">
+                <span className="px-3 py-2 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-100/80 to-rose-100/80 text-amber-800 border border-amber-200/50">
                   {selectedIssue.type || "Issue"}
                 </span>
-                <span className="px-2 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                <span className="px-3 py-2 rounded-lg text-xs font-bold bg-gradient-to-r from-rose-100/80 to-amber-100/80 text-rose-800 border border-rose-200/50">
                   {COLUMN_META[selectedIssue.state]?.label || selectedIssue.state}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-neutral-400">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-gradient-to-r from-white/80 to-amber-50/60 p-4 rounded-xl border border-amber-200/50">
+                  <p className="text-xs uppercase tracking-wide text-amber-600 font-bold mb-2">
                     Assignee
                   </p>
-                  <p className="font-medium">
+                  <p className="font-semibold text-amber-900">
                     {selectedIssue.assignee || "Unassigned"}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-neutral-400">
+                <div className="bg-gradient-to-r from-white/80 to-rose-50/60 p-4 rounded-xl border border-rose-200/50">
+                  <p className="text-xs uppercase tracking-wide text-rose-600 font-bold mb-2">
                     Updated
                   </p>
-                  <p className="font-medium">
+                  <p className="font-semibold text-rose-900">
                     {selectedIssue.updatedAtISO
                       ? new Date(selectedIssue.updatedAtISO).toLocaleString()
                       : "—"}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-neutral-400">
+                <div className="bg-gradient-to-r from-white/80 to-amber-50/60 p-4 rounded-xl border border-amber-200/50">
+                  <p className="text-xs uppercase tracking-wide text-amber-600 font-bold mb-2">
                     Created
                   </p>
-                  <p className="font-medium">
+                  <p className="font-semibold text-amber-900">
                     {selectedIssue.createdAtISO
                       ? new Date(selectedIssue.createdAtISO).toLocaleString()
                       : "—"}
@@ -468,15 +489,15 @@ export default function JiraDashboard() {
               </div>
 
               {selectedIssue.labels && selectedIssue.labels.length > 0 && (
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-neutral-400 mb-1">
+                <div className="bg-gradient-to-r from-white/80 to-rose-50/60 p-4 rounded-xl border border-rose-200/50">
+                  <p className="text-xs uppercase tracking-wide text-rose-600 font-bold mb-3">
                     Labels
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {selectedIssue.labels.map(l => (
                       <span
                         key={l}
-                        className="px-2 py-1 text-[11px] rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200"
+                        className="px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-amber-100/80 to-rose-100/80 text-amber-800 border border-amber-200/50"
                       >
                         {l}
                       </span>
@@ -485,9 +506,9 @@ export default function JiraDashboard() {
                 </div>
               )}
 
-              <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                <p className="text-xs text-neutral-500">
-                  (Add description rendering / comments fetch here later.)
+              <div className="pt-6 border-t border-amber-200/50">
+                <p className="text-sm text-amber-600 font-medium bg-amber-50/80 p-4 rounded-xl border border-amber-200/50">
+                  Issue details and comments will be displayed here in future updates.
                 </p>
               </div>
             </div>
