@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectMongo } from "@/lib/mongo";
 import Integration from "@/models/Integration";
 import { ensureValidAccessToken } from "@/connectors/jira/refresh";
-import { jiraCreateIssue } from "@/connectors/jira/client";
+
 import { google } from 'googleapis';
 
 const DEMO_USER_ID = "demo-user-1";
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
           actionId: action.id,
           success: result.success,
           data: result.data,
-          error: result.error
+          error: 'error' in result ? result.error : undefined
         });
       } catch (error) {
         results.push({
@@ -135,7 +135,7 @@ async function executeCalendarCreate(action: any, token:string) {
 
   const response = await calendar.events.insert({
     calendarId: 'primary',
-    resource: event,
+    ...event
   });
 
   return { 

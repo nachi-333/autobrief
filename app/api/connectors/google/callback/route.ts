@@ -1,4 +1,4 @@
-import { getOAuthClient, SCOPES } from '../../../../../lib/google';
+import { getOAuthClient, SCOPES } from '@/lib/google';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {

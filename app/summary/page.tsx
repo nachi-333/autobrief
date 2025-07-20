@@ -2,9 +2,23 @@
 
 import { useEffect, useState } from "react";
 
+type SummaryData = {
+  ok: boolean;
+  error?: string;
+  summary: {
+    meetingTitle: string;
+    meetingStart?: string;
+    sections: Record<string, string>;
+    sources: {
+      jiraIssueKeys: string[];
+      slackChannels: string[];
+    };
+  };
+};
+
 export default function SummaryPage({ searchParams }: any) {
   const { id } = searchParams;
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<SummaryData | null>(null);
 
   useEffect(() => {
     if (id) {

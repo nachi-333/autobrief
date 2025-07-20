@@ -288,7 +288,22 @@ export async function POST(req: Request) {
     const meetingEnd = event.end?.dateTime || event.end?.date;
     const attendees = (event.attendees || []).map((a: any) => a.email || a.displayName).filter(Boolean);
 
-    const keywords = meetingTitle.toLowerCase().split(/[\s\-_:,\.]+/).filter(w => w.length > 3);
+    interface CalendarEventAttendee {
+      email?: string;
+      displayName?: string;
+    }
+
+    interface CalendarEvent {
+      summary?: string;
+      start?: { dateTime?: string; date?: string };
+      end?: { dateTime?: string; date?: string };
+      attendees?: CalendarEventAttendee[];
+    }
+
+    const keywords: string[] = meetingTitle
+      .toLowerCase()
+      .split(/[\s\-_:,\.]+/)
+      .filter((w: string) => w.length > 3);
 
     // 2. Jira issues
     const recentIssues = await JiraIssue.find({ userId: USER_ID }).sort({ updatedAtISO: -1 }).limit(60).lean();
