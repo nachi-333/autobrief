@@ -15,6 +15,8 @@ This AI agent automates everything from **meeting prep** to **follow-up executio
 ## 💡 Solution: AutoBrief Workflow
 
 AutoBrief follows a 3-phase pipeline inspired by how high-performing teams actually work.
+<img width="1520" height="887" alt="image" src="https://github.com/user-attachments/assets/10481205-39cf-4e76-8469-f773508e6a28" />
+
 
 ---
 
